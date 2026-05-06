@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>王者荣耀 - 英雄攻略站</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0e27;
+            --bg-secondary: #141b3d;
+            --bg-card: #1a2247;
+            --text-primary: #ffffff;
+            --text-secondary: #a0aec0;
+            --accent-gold: #f0b90b;
+            --accent-blue: #3b82f6;
+            
+            --tank: #e63946;
+            --warrior: #ff6b35;
+            --assassin: #9333ea;
+            --mage: #06b6d4;
+            --marksman: #22c55e;
+            --support: #f59e0b;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.15;
+            background: 
+                radial-gradient(circle at 20% 50%, var(--accent-blue) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, var(--accent-gold) 0%, transparent 50%);
+            animation: gradientShift 15s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(5%, 5%) scale(1.1); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 40px 0 60px;
+            position: relative;
+        }
+
+        .logo {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-gold), #fff, var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(240, 185, 11, 0.3);
+            letter-spacing: 2px;
+            animation: titleGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.2); }
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-top: 10px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        /* Search & Filter Section */
+        .controls {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .search-box {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 16px 50px 16px 24px;
+            background: var(--bg-card);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 20px rgba(240, 185, 11, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 12px 24px;
+            border: 2px solid;
+            background: transparent;
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Noto Sans SC', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .filter-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .filter-btn:hover::before,
+        .filter-btn.active::before {
+            opacity: 0.2;
+        }
+
+        .filter-btn.all { border-color: var(--accent-gold); }
+        .filter-btn.all::before { background: var(--accent-gold); }
+        .filter-btn.tank { border-color: var(--tank); }
+        .filter-btn.tank::before { background: var(--tank); }
+        .filter-btn.warrior { border-color: var(--warrior); }
+        .filter-btn.warrior::before { background: var(--warrior); }
+        .filter-btn.assassin { border-color: var(--assassin); }
+        .filter-btn.assassin::before { background: var(--assassin); }
+        .filter-btn.mage { border-color: var(--mage); }
+        .filter-btn.mage::before { background: var(--mage); }
+        .filter-btn.marksman { border-color: var(--marksman); }
+        .filter-btn.marksman::before { background: var(--marksman); }
+        .filter-btn.support { border-color: var(--support); }
+        .filter-btn.support::before { background: var(--support); }
+
+        .filter-btn.active {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px currentColor;
+        }
+
+        /* Hero Grid */
+        .hero-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+
+        .hero-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+            animation: cardFadeIn 0.6s ease backwards;
+        }
+
+        @keyframes cardFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .hero-card.tank::before { background: var(--tank); }
+        .hero-card.warrior::before { background: var(--warrior); }
+        .hero-card.assassin::before { background: var(--assassin); }
+        .hero-card.mage::before { background: var(--mage); }
+        .hero-card.marksman::before { background: var(--marksman); }
+        .hero-card.support::before { background: var(--support); }
+
+        .hero-card:hover {
+            transform: translateY(-8px);
+            border-color: currentColor;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .hero-card:hover::before {
+            opacity: 1;
+        }
+
+        .hero-avatar {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
+            border-radius: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-avatar::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+            transform: rotate(45deg);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .hero-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .hero-role {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .hero-role.tank { background: var(--tank); }
+        .hero-role.warrior { background: var(--warrior); }
+        .hero-role.assassin { background: var(--assassin); }
+        .hero-role.mage { background: var(--mage); }
+        .hero-role.marksman { background: var(--marksman); }
+        .hero-role.support { background: var(--support); }
+
+        .hero-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: modalSlideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes modalSlideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 2rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            transform: rotate(90deg);
+        }
+
+        .modal-avatar {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-primary));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-body {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: var(--accent-gold);
+            border-radius: 2px;
+        }
+
+        .skill-list {
+            display: grid;
+            gap: 16px;
+        }
+
+        .skill-item {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid var(--accent-blue);
+        }
+
+        .skill-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: var(--accent-blue);
+        }
+
+        .skill-desc {
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .equipment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 16px;
+        }
+
+        .equipment-item {
+            background: var(--bg-card);
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .equipment-item:hover {
+            border-color: var(--accent-gold);
+            transform: translateY(-4px);
+        }
+
+        .equipment-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 12px;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-blue));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .equipment-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .tips-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .tip-item {
+            background: var(--bg-card);
+            padding: 16px 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: start;
+            gap: 12px;
+        }
+
+        .tip-bullet {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            background: var(--accent-gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2.5rem;
+            }
+
+            .hero-grid {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+                gap: 16px;
+            }
+
+            .filter-buttons {
+                gap: 8px;
+            }
+
+            .filter-btn {
+                padding: 10px 18px;
+                font-size: 0.85rem;
+            }
+
+            .modal-content {
+                margin: 20px 0;
+            }
+
+            .modal-body {
+                padding: 24px;
+            }
+
+            .equipment-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 20px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--accent-gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+    
+    <div class="container">
+        <header>
+            <h1 class="logo">王者荣耀</h1>
+            <p class="subtitle">英雄攻略站</p>
+        </header>
+
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="搜索英雄名称...">
+                <span class="search-icon">🔍</span>
+            </div>
+
+            <div class="filter-buttons">
+                <button class="filter-btn all active" data-role="all">全部</button>
+                <button class="filter-btn tank" data-role="tank">坦克</button>
+                <button class="filter-btn warrior" data-role="warrior">战士</button>
+                <button class="filter-btn assassin" data-role="assassin">刺客</button>
+                <button class="filter-btn mage" data-role="mage">法师</button>
+                <button class="filter-btn marksman" data-role="marksman">射手</button>
+                <button class="filter-btn support" data-role="support">辅助</button>
+            </div>
+        </div>
+
+        <div class="hero-grid" id="heroGrid">
+            <!-- Heroes will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="heroModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close-modal" onclick="closeModal()">×</button>
+                <div class="modal-avatar" id="modalAvatar"></div>
+                <h2 id="modalName"></h2>
+                <span class="hero-role" id="modalRole"></span>
+            </div>
+            <div class="modal-body">
+                <div class="section">
+                    <h3 class="section-title">技能介绍</h3>
+                    <div class="skill-list" id="skillList"></div>
+                </div>
+
+                <div class="section">
+                    <h3 class="section-title">推荐出装</h3>
+                    <div class="equipment-grid" id="equipmentGrid"></div>
+                </div>
+
+                <div class="section">
+                    <h3 class="section-title">玩法技巧</h3>
+                    <div class="tips-list" id="tipsList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 英雄数据库
+        const heroesData = [
+            {
+                name: "亚瑟",
+                role: "warrior",
+                roleName: "战士",
+                avatar: "⚔️",
+                difficulty: 1,
+                attack: 7,
+                defense: 8,
+                skills: [
+                    { name: "被动：圣剑裁决", desc: "普攻第5次会造成额外伤害并沉默敌人" },
+                    { name: "一技能：誓约之盾", desc: "回复生命值并增加物理防御" },
+                    { name: "二技能：旋转打击", desc: "向前挥剑造成范围伤害并减速" },
+                    { name: "三技能：圣剑裁决", desc: "跳向敌人造成大量伤害并沉默" }
+                ],
+                equipment: ["抵抗之靴", "红莲斗篷", "反伤刺甲", "不祥征兆", "霸者重装", "魔女斗篷"],
+                tips: [
+                    "开团时使用三技能切入后排",
+                    "一技能可以用来抗伤害",
+                    "注意利用被动打出沉默效果",
+                    "团战中尽量保护己方输出"
+                ]
+            },
+            {
+                name: "妲己",
+                role: "mage",
+                roleName: "法师",
+                avatar: "🦊",
+                difficulty: 1,
+                attack: 9,
+                defense: 3,
+                skills: [
+                    { name: "被动：魅惑", desc: "技能命中敌人会眩晕目标" },
+                    { name: "一技能：灵魂冲击", desc: "发射灵魂弹造成法术伤害" },
+                    { name: "二技能：偶像魅力", desc: "召唤法球围绕自身造成持续伤害" },
+                    { name: "三技能：女王崇拜", desc: "发射多个爱心造成爆炸伤害" }
+                ],
+                equipment: ["秘法之靴", "回响之杖", "博学者之怒", "虚无法杖", "噬神之书", "贤者之书"],
+                tips: [
+                    "利用草丛蹲人打出爆发",
+                    "二技能可以用来清兵线",
+                    "技能连招：2-1-3",
+                    "保持安全距离输出"
+                ]
+            },
+            {
+                name: "后羿",
+                role: "marksman",
+                roleName: "射手",
+                avatar: "🏹",
+                difficulty: 1,
+                attack: 9,
+                defense: 3,
+                skills: [
+                    { name: "被动：惩戒射击", desc: "每4次普攻造成额外伤害" },
+                    { name: "一技能：多重箭", desc: "射出多支箭造成范围伤害" },
+                    { name: "二技能：震荡箭", desc: "击退并眩晕敌人" },
+                    { name: "三技能：灼日之矢", desc: "召唤太阳持续灼烧敌人" }
+                ],
+                equipment: ["急速战靴", "末世", "无尽战刃", "影刃", "破晓", "贤者的庇护"],
+                tips: [
+                    "发育期优先清兵发育",
+                    "二技能可以用来自保",
+                    "站位要注意安全距离",
+                    "大招可以用来清兵和收割"
+                ]
+            },
+            {
+                name: "孙悟空",
+                role: "assassin",
+                roleName: "刺客",
+                avatar: "🐵",
+                difficulty: 2,
+                attack: 9,
+                defense: 4,
+                skills: [
+                    { name: "被动：破甲棒", desc: "每次技能命中降低敌人物理防御" },
+                    { name: "一技能：斗战冲锋", desc: "向前突进造成伤害" },
+                    { name: "二技能：如意金箍", desc: "增加攻击距离造成范围伤害" },
+                    { name: "三技能：七十二变", desc: "变为无敌状态并击飞敌人" }
+                ],
+                equipment: ["抵抗之靴", "暗影战斧", "黑切", "破军", "宗师之力", "名刀·司命"],
+                tips: [
+                    "利用一技能灵活位移",
+                    "三技能可以躲避控制",
+                    "打出被动降低敌人防御",
+                    "切入时机很重要"
+                ]
+            },
+            {
+                name: "程咬金",
+                role: "tank",
+                roleName: "坦克",
+                avatar: "🛡️",
+                difficulty: 1,
+                attack: 5,
+                defense: 9,
+                skills: [
+                    { name: "被动：老兵不死", desc: "生命低于30%触发回血" },
+                    { name: "一技能：正义潜能", desc: "恢复生命值" },
+                    { name: "二技能：痛击", desc: "击飞敌人造成伤害" },
+                    { name: "三技能：激情绿茵", desc: "向前冲锋造成范围伤害" }
+                ],
+                equipment: ["抵抗之靴", "红莲斗篷", "霸者重装", "不祥征兆", "反伤刺甲", "魔女斗篷"],
+                tips: [
+                    "利用被动回血赖线",
+                    "开团时冲进人堆吸收伤害",
+                    "二技能可以打断敌人技能",
+                    "保护好己方输出位"
+                ]
+            },
+            {
+                name: "蔡文姬",
+                role: "support",
+                roleName: "辅助",
+                avatar: "🎵",
+                difficulty: 1,
+                attack: 3,
+                defense: 6,
+                skills: [
+                    { name: "被动：长歌行", desc: "技能命中回复自身生命" },
+                    { name: "一技能：胡笳乐", desc: "造成伤害并减速敌人" },
+                    { name: "二技能：思无邪", desc: "为队友回复大量生命值" },
+                    { name: "三技能：忘忧曲", desc: "解除控制并持续回血" }
+                ],
+                equipment: ["守护者之铠", "极寒风暴", "救赎之翼", "霸者重装", "不祥征兆", "魔女斗篷"],
+                tips: [
+                    "跟紧己方输出位",
+                    "二技能及时给队友回血",
+                    "三技能可以解控救人",
+                    "一技能用来消耗敌人"
+                ]
+            },
+            {
+                name: "李白",
+                role: "assassin",
+                roleName: "刺客",
+                avatar: "⚡",
+                difficulty: 3,
+                attack: 10,
+                defense: 3,
+                skills: [
+                    { name: "被动：侠客行", desc: "第四次攻击触发额外伤害" },
+                    { name: "一技能：将进酒", desc: "快速位移两次" },
+                    { name: "二技能：青莲剑歌", desc: "挥剑造成范围伤害" },
+                    { name: "三技能：青莲剑仙", desc: "无敌并造成大范围伤害" }
+                ],
+                equipment: ["抵抗之靴", "暗影战斧", "破军", "泣血之刃", "名刀·司命", "反伤刺甲"],
+                tips: [
+                    "利用一技能灵活走位",
+                    "二技能叠加后才能放大招",
+                    "大招期间无敌可以躲技能",
+                    "需要大量练习掌握节奏"
+                ]
+            },
+            {
+                name: "王昭君",
+                role: "mage",
+                roleName: "法师",
+                avatar: "❄️",
+                difficulty: 1,
+                attack: 8,
+                defense: 4,
+                skills: [
+                    { name: "被动：寒冬已至", desc: "技能会冻结敌人" },
+                    { name: "一技能：凛冬已至", desc: "召唤冰雨造成范围伤害" },
+                    { name: "二技能：冰霜之舞", desc: "减速周围敌人" },
+                    { name: "三技能：凝冻风暴", desc: "召唤暴风雪持续伤害" }
+                ],
+                equipment: ["秘法之靴", "回响之杖", "博学者之怒", "虚无法杖", "冰霜长矛", "辉月"],
+                tips: [
+                    "利用技能组合打出冰冻",
+                    "站位要保持安全距离",
+                    "二技能可以用来自保",
+                    "团战控制很重要"
+                ]
+            },
+            {
+                name: "韩信",
+                role: "assassin",
+                roleName: "刺客",
+                avatar: "🗡️",
+                difficulty: 3,
+                attack: 10,
+                defense: 3,
+                skills: [
+                    { name: "被动：背水一战", desc: "背对敌人提升伤害" },
+                    { name: "一技能：无情冲锋", desc: "向前突刺造成伤害" },
+                    { name: "二技能：影分身", desc: "跳跃并造成伤害" },
+                    { name: "三技能：国士无双", desc: "挑飞敌人造成爆发" }
+                ],
+                equipment: ["抵抗之靴", "巨人之握", "暗影战斧", "破军", "名刀·司命", "破甲弓"],
+                tips: [
+                    "刷野速度快，前期入侵",
+                    "利用二技能躲技能",
+                    "连招要流畅",
+                    "注意利用被动打背面"
+                ]
+            },
+            {
+                name: "鲁班七号",
+                role: "marksman",
+                roleName: "射手",
+                avatar: "🔫",
+                difficulty: 1,
+                attack: 10,
+                defense: 2,
+                skills: [
+                    { name: "被动：激情火力", desc: "每5次普攻造成爆炸伤害" },
+                    { name: "一技能：河豚手雷", desc: "投掷炸弹造成范围伤害" },
+                    { name: "二技能：无敌鲨嘴炮", desc: "发射穿透炮弹" },
+                    { name: "三技能：空中支援", desc: "召唤机器鲨鱼轰炸" }
+                ],
+                equipment: ["急速战靴", "末世", "无尽战刃", "影刃", "破晓", "泣血之刃"],
+                tips: [
+                    "发育是第一要务",
+                    "保持安全距离输出",
+                    "需要队友保护",
+                    "利用技能清兵快速发育"
+                ]
+            },
+            {
+                name: "兰陵王",
+                role: "assassin",
+                roleName: "刺客",
+                avatar: "🌑",
+                difficulty: 2,
+                attack: 10,
+                defense: 3,
+                skills: [
+                    { name: "被动：暗影刀锋", desc: "隐身后攻击造成额外伤害" },
+                    { name: "一技能：秘技·分身", desc: "隐身并加速" },
+                    { name: "二技能：秘技·影蚀", desc: "标记敌人造成伤害" },
+                    { name: "三技能：秘技·暗影缚", desc: "跳向敌人造成爆发伤害" }
+                ],
+                equipment: ["影忍之足", "暗影战斧", "破军", "宗师之力", "名刀·司命", "碎星锤"],
+                tips: [
+                    "利用隐身gank抓人",
+                    "先手需要精准",
+                    "发育期多刷野",
+                    "切后排要果断"
+                ]
+            },
+            {
+                name: "甄姬",
+                role: "mage",
+                roleName: "法师",
+                avatar: "💧",
+                difficulty: 2,
+                attack: 8,
+                defense: 3,
+                skills: [
+                    { name: "被动：洛神降临", desc: "技能冷却缩短" },
+                    { name: "一技能：凌波微步", desc: "召唤水波造成减速" },
+                    { name: "二技能：叹息", desc: "冻结敌人并造成伤害" },
+                    { name: "三技能：洛神赋", desc: "大范围控制和伤害" }
+                ],
+                equipment: ["秘法之靴", "回响之杖", "博学者之怒", "虚无法杖", "辉月", "贤者之书"],
+                tips: [
+                    "技能连招：1-2-3",
+                    "大招命中率很重要",
+                    "保持安全距离",
+                    "利用技能控制敌人"
+                ]
+            }
+        ];
+
+        let currentFilter = 'all';
+        let currentSearch = '';
+
+        // 初始化页面
+        function init() {
+            renderHeroes();
+            setupEventListeners();
+        }
+
+        // 渲染英雄卡片
+        function renderHeroes() {
+            const grid = document.getElementById('heroGrid');
+            const filteredHeroes = heroesData.filter(hero => {
+                const matchesRole = currentFilter === 'all' || hero.role === currentFilter;
+                const matchesSearch = hero.name.toLowerCase().includes(currentSearch.toLowerCase());
+                return matchesRole && matchesSearch;
+            });
+
+            if (filteredHeroes.length === 0) {
+                grid.innerHTML = '<div class="loading">未找到匹配的英雄</div>';
+                return;
+            }
+
+            grid.innerHTML = filteredHeroes.map((hero, index) => `
+                <div class="hero-card ${hero.role}" onclick="showHeroDetail(${heroesData.indexOf(hero)})" style="animation-delay: ${index * 0.05}s">
+                    <div class="hero-avatar">${hero.avatar}</div>
+                    <div class="hero-name">${hero.name}</div>
+                    <span class="hero-role ${hero.role}">${hero.roleName}</span>
+                    <div class="hero-stats">
+                        <div class="stat">
+                            <div class="stat-label">难度</div>
+                            <div class="stat-value">${'★'.repeat(hero.difficulty)}</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">攻击</div>
+                            <div class="stat-value">${hero.attack}</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">防御</div>
+                            <div class="stat-value">${hero.defense}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 设置事件监听
+        function setupEventListeners() {
+            // 筛选按钮
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFilter = this.dataset.role;
+                    renderHeroes();
+                });
+            });
+
+            // 搜索框
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                currentSearch = e.target.value;
+                renderHeroes();
+            });
+
+            // 关闭模态框（点击背景）
+            document.getElementById('heroModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal();
+                }
+            });
+        }
+
+        // 显示英雄详情
+        function showHeroDetail(index) {
+            const hero = heroesData[index];
+            const modal = document.getElementById('heroModal');
+            
+            // 填充模态框内容
+            document.getElementById('modalAvatar').textContent = hero.avatar;
+            document.getElementById('modalName').textContent = hero.name;
+            document.getElementById('modalRole').textContent = hero.roleName;
+            document.getElementById('modalRole').className = `hero-role ${hero.role}`;
+            
+            // 技能列表
+            document.getElementById('skillList').innerHTML = hero.skills.map(skill => `
+                <div class="skill-item">
+                    <div class="skill-name">${skill.name}</div>
+                    <div class="skill-desc">${skill.desc}</div>
+                </div>
+            `).join('');
+            
+            // 装备列表
+            document.getElementById('equipmentGrid').innerHTML = hero.equipment.map((item, i) => `
+                <div class="equipment-item">
+                    <div class="equipment-icon">${['⚔️', '👟', '🛡️', '💎', '⚡', '🔮'][i % 6]}</div>
+                    <div class="equipment-name">${item}</div>
+                </div>
+            `).join('');
+            
+            // 技巧列表
+            document.getElementById('tipsList').innerHTML = hero.tips.map((tip, i) => `
+                <div class="tip-item">
+                    <div class="tip-bullet">${i + 1}</div>
+                    <div>${tip}</div>
+                </div>
+            `).join('');
+            
+            // 显示模态框
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            const modal = document.getElementById('heroModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
